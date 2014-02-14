@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.SimpleRobot;
 
 /**
@@ -29,20 +30,45 @@ public class RobotTemplate extends SimpleRobot {
         
     }
 
+    
+    /*
+    Port description:
+    Electro magnet: Relay port on sidecar 1
+    Winch: PWM Port 5
+    Drive: PWM ports 1-4 AS LABELED ON MOTORS and with the Jags the right way.
+    */
     /**
      * 
      * This function is called once each time the robot enters operator control.
      */
     RobotDrive drive = new RobotDrive(new Jaguar(2),new Jaguar(1),new InvertedSpeedControler(new Jaguar(3)),new InvertedSpeedControler(new Jaguar(4)));
-     
-    Relay  relay = new Relay(1);
+    Jaguar winch1 = new Jaguar(5), winch2 = new Jaguar(6);
+    Relay  electroMagnet = new Relay(1);
     Joystick js1 = new Joystick(1), js2 = new Joystick(2);
+    
+    
     public void operatorControl() {
         System.out.println("starting en.");
         while (isOperatorControl() && isEnabled()) {
-            drive.mecanumDrive_Polar(js1.getMagnitude(), js1.getDirectionDegrees() + 90, js2.getX());
-            //drive.mecanumDrive_Cartesian(js1.getX(), js1.getY(), js2.getX(), js2.getY());
-            //operatorControl();
+            if (js1.getRawButton(11)) {
+                winch1.set(1);
+                winch2.set(-1);
+            }
+            else if (js1.getRawButton(10)) {
+                winch1.set(-1);
+                winch2.set(1);
+            }
+            else {
+             
+                winch1.set(0);
+                winch2.set(0);
+            }
+            if (js1.getTrigger()) {
+                electroMagnet.set(Relay.Value.kOff);
+            } else {
+                electroMagnet.set(Relay.Value.kForward);
+            }
+            drive.mecanumDrive_Polar(js1.getMagnitude(), js1.getDirectionDegrees(), js2.getX());
         }
     }
     

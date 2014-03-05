@@ -62,12 +62,14 @@ public class RobotTemplate extends SimpleRobot {
      */
     RobotDrive drive = new RobotDrive(new Jaguar(2), new Jaguar(1), new InvertedSpeedController(new Jaguar(3)), new InvertedSpeedController(new Jaguar(4)));
 
-    DigitalInput limitSwitch = new DigitalInput(1);
+    
     SpeedController buren1 = new Victor(5);
     SpeedController buren2 = new Jaguar(6);
     Relay feeder1 = new Relay(2), feeder2 = new Relay(3);
     Relay electroMagnet = new Relay(1);
     Joystick js1 = new Joystick(1), js2 = new Joystick(2), js3 = new Joystick(3);
+    
+    DigitalInput limitSwitch = new DigitalInput(1);
 
     //NetworkTable server = NetworkTable.getTable("SmartDashboard");
     //js 3 ax 5  is x on the knob and 6 is Y on the knob
@@ -78,8 +80,11 @@ public class RobotTemplate extends SimpleRobot {
     
     boolean feederOn = false;
 
-    public final long winchingTime = (long) (3.5 * 1000);
+    public final long winchingTimeUp = (long) (3.5 * 1000);
+    public final long winchingTimeDown = (long) (3.56 * 1000);
 
+    private final long winchLimitSwitchOverload = (long) (10);
+    
     /**
      *
      * This function is called once each time the robot enters operator control.
@@ -109,7 +114,8 @@ public class RobotTemplate extends SimpleRobot {
             }
 
             if (winchingStartTime != -1 && isWinching) {
-                if (System.currentTimeMillis() - winchingStartTime > winchingTime) {
+                if (((autoWinchDirection == false) && System.currentTimeMillis() - winchingStartTime > winchingTimeUp) || 
+                        ((autoWinchDirection == true) && System.currentTimeMillis() - winchingStartTime > winchingTimeDown)) {
                     winchingStartTime = -1;
                     isWinching = false;
                     winchStop();

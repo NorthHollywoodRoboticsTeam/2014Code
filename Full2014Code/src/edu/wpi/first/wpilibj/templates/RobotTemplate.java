@@ -83,7 +83,7 @@ public class RobotTemplate extends SimpleRobot {
     public final long winchingTimeUp = (long) (3.5 * 1000);
     public final long winchingTimeDown = (long) (3.56 * 1000);
 
-    private final long winchLimitSwitchOverload = (long) (10);
+    private final long winchLimitSwitchOverload = (long) (8);
     
     /**
      *
@@ -135,9 +135,9 @@ public class RobotTemplate extends SimpleRobot {
 
             if (!limitSwitch.get() && isWinching) {
                 if (autoWinchDirection == true) {
-                    isWinching = false;
-                    winchingStartTime = -1;
-                    winchStop();
+                    winchingStartTime = 
+                            (System.currentTimeMillis() + winchLimitSwitchOverload)  //The system time we want the winch to stop at.
+                            - winchingTimeDown;  //Minos the time it should winch down = the winch will stop in winchLimitSwitchOverload.
                 }
             }
             if (js3.getRawButton(8)) {

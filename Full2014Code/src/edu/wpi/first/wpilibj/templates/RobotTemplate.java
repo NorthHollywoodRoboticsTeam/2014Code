@@ -104,6 +104,7 @@ public class RobotTemplate extends SimpleRobot {
                 winchingStartTime = System.currentTimeMillis();
                 isWinching = true;
                 autoWinchDirection = true;
+                electroMagnet.set(Relay.Value.kForward);
                 winchForward();
             }
             if (js3.getRawButton(4)) {

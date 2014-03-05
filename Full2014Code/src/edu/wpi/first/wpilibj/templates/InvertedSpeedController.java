@@ -12,13 +12,15 @@ import edu.wpi.first.wpilibj.SpeedController;
  *
  * @author Henry
  */
-public class InvertedSpeedControler implements  SpeedController {
+public class InvertedSpeedController implements  SpeedController {
 
     SpeedController sc;
     
-    public InvertedSpeedControler(SpeedController sc) {
+    public InvertedSpeedController(SpeedController sc) {
         this.sc = sc;
     }
+    
+    
     public double get() {
     return -sc.get();
     }

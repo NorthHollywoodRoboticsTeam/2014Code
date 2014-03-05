@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SimpleRobot;
+import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -25,19 +26,24 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class RobotTemplate extends SimpleRobot {
 
+    
+    
+    int Mecanum = 0,
+            MecanumSplit = 1,
+            AllInOne = 2;
     /**
      * This function is called once each time the robot enters autonomous mode.
      */
     public void autonomous() {
         /*try {
-             if (((Double)(server.getValue("BLOB_COUNT"))).intValue() >= 2) {
-             System.out.println("shoot NOW");
-             }else{ 
-             System.out.println("Don't shoot");
-             }
-             } catch (Exception ex) {
+         if (((Double)(server.getValue("BLOB_COUNT"))).intValue() >= 2) {
+         System.out.println("shoot NOW");
+         }else{ 
+         System.out.println("Don't shoot");
+         }
+         } catch (Exception ex) {
                 
-             }*/
+         }*/
     }
 
     /*
@@ -54,44 +60,41 @@ public class RobotTemplate extends SimpleRobot {
      Winch: PWM Port 5 and 6
      Drive: PWM ports 1-4 AS LABELED ON MOTORS and with the Jags the right way.
      */
-    RobotDrive drive = new RobotDrive(new Jaguar(2), new Jaguar(1), new InvertedSpeedControler(new Jaguar(3)), new InvertedSpeedControler(new Jaguar(4)));
+    RobotDrive drive = new RobotDrive(new Jaguar(2), new Jaguar(1), new InvertedSpeedController(new Jaguar(3)), new InvertedSpeedController(new Jaguar(4)));
 
-    
     DigitalInput limitSwitch = new DigitalInput(1);
-    Victor winch1 = new Victor(5);
-    Jaguar winch2 = new Jaguar(6);
+    SpeedController buren1 = new Victor(5);
+    SpeedController buren2 = new Jaguar(6);
     Relay feeder1 = new Relay(2), feeder2 = new Relay(3);
     Relay electroMagnet = new Relay(1);
     Joystick js1 = new Joystick(1), js2 = new Joystick(2), js3 = new Joystick(3);
 
-    
     //NetworkTable server = NetworkTable.getTable("SmartDashboard");
-    
-    
     //js 3 ax 5  is x on the knob and 6 is Y on the knob
     //The limit switch is inverted
-    
     boolean button3State = false, button10State = false;
 
+    int driveType = MecanumSplit;
+    
     boolean feederOn = false;
 
     public final long winchingTime = (long) (3.5 * 1000);
+
     /**
      *
      * This function is called once each time the robot enters operator control.
      */
     public void operatorControl() {
         long winchingStartTime = -1;
-        
+
         boolean isWinching = false;
-        
+
         //true = winching down false = winching up
         boolean autoWinchDirection = false;
         System.out.println("starting en.");
         while (isOperatorControl() && isEnabled()) {
-            System.out.println("feeder status: " + feeder1.get());
-        SmartDashboard.putBoolean("Limit Switch Status", !limitSwitch.get());
-            
+            SmartDashboard.putBoolean("Limit Switch Status", !limitSwitch.get());
+
             if (js3.getRawButton(3)) {
                 winchingStartTime = System.currentTimeMillis();
                 isWinching = true;
@@ -104,7 +107,7 @@ public class RobotTemplate extends SimpleRobot {
                 autoWinchDirection = false;
                 winchReverse();
             }
-            
+
             if (winchingStartTime != -1 && isWinching) {
                 if (System.currentTimeMillis() - winchingStartTime > winchingTime) {
                     winchingStartTime = -1;
@@ -123,7 +126,7 @@ public class RobotTemplate extends SimpleRobot {
             } else if (!isWinching) {
                 winchStop();
             }
-            
+
             if (!limitSwitch.get() && isWinching) {
                 if (autoWinchDirection == true) {
                     isWinching = false;
@@ -161,7 +164,6 @@ public class RobotTemplate extends SimpleRobot {
                 }
             }
             if (js3.getRawButton(11)) {
-                //System.out.println("reverse");
                 feeder1.set(Relay.Value.kReverse);
                 feeder2.set(Relay.Value.kReverse);
             } else {
@@ -175,26 +177,34 @@ public class RobotTemplate extends SimpleRobot {
                     feeder2.set(Relay.Value.kOff);
                 }
             }
+            
+            if (driveType == MecanumSplit) {
+            drive.mecanumDrive_Cartesian(-js2.getY(), -js1.getX(), js2.getX() / 2, 0);
+            } else if (driveType == Mecanum) {
+                
+            drive.mecanumDrive_Cartesian(-js2.getY(), -js2.getX(), js1.getX() / 2, 0);
+            } else if (driveType == AllInOne) {
+                
+            drive.mecanumDrive_Cartesian(-js3.getY(), -js3.getX(), js3.getTwist()/ 2, 0);
+            }
 
-            drive.mecanumDrive_Cartesian(-js1.getY(), -js2.getX(), js1.getX() / 2, 0);
-            //drive.mecanumDrive_Polar(js1.getMagnitude(), js1.getDirectionDegrees() - 90, js2.getX());
         }
     }
 
     private void winchStop() {
-        winch1.set(0);
-        winch2.set(0);
+        buren1.set(0);
+        buren2.set(0);
     }
 
     private void winchForward() {
-        winch1.set(1);
-        winch2.set(-1 * .985);
+        buren1.set(1);
+        buren2.set(-1 * .985);
     }
 
     private void winchReverse() {
 
-        winch1.set(-1);
-        winch2.set(1 * .985);
+        buren1.set(-1);
+        buren2.set(1 * .985);
     }
     /**
      * This function is called once each time the robot enters test mode.

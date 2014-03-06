@@ -46,13 +46,7 @@ public class RobotTemplate extends SimpleRobot {
          }*/
     }
 
-    /*
-     Joystick spec.
-     Driving: js1 Y for forward and backward, js1 X for turn and js2 X for sideways
-     Winching: js3 up and down on knob   and js3 button 4 is auto winch up and js3 button 3 is autowinch down.
-     Feeding: Toggle js2 10 for on and off and js2 11 overrides that and dose reverse
-     Shooting: js3 button 2 turns it on and js3 trigger resets it
-     */
+    
     /*
      Port description:
      Electro magnet: Relay port on sidecar 1

@@ -60,7 +60,7 @@ public class AllInOne implements JoystickLayout {
     }
 
     public boolean electroMagnetReset() {
-        return js2.getTrigger();
+        return js2.getTrigger() || js1.getTrigger();
     }
 
     

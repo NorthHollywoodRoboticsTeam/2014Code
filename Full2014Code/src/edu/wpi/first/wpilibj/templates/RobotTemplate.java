@@ -30,9 +30,11 @@ public class RobotTemplate extends SimpleRobot {
     /**
      * This function is called once each time the robot enters autonomous mode.
      */
+    
+    SmartDashboard network = new SmartDashboard();
     public void autonomous() {
         drive.mecanumDrive_Cartesian(.5, 0, 0, 0);
-        Timer.delay(winchingTimeUp);
+        Timer.delay(1);
         drive.mecanumDrive_Cartesian(0, 0, 0, 0);
         
     }

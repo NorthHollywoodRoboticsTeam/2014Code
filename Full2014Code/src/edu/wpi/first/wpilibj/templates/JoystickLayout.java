@@ -22,12 +22,14 @@ package edu.wpi.first.wpilibj.templates;
 public interface JoystickLayout {
     public boolean manualWinchDown();
     public boolean manualWinchUp();
+    public boolean winchOff();
     public boolean autoWinchDown();
     public boolean autoWinchUp();
     public boolean setFeederOn();
     public boolean overrideFeederReverse();
     public boolean electroMagnetOn();
     public boolean electroMagnetReset();
+    
     
     public double driveForward();
     public double driveLeft();

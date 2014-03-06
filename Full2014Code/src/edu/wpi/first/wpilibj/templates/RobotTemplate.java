@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.Victor;
-import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -27,10 +26,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class RobotTemplate extends SimpleRobot {
 
     
-    
-    int Mecanum = 0,
-            MecanumSplit = 1,
-            AllInOne = 2;
     /**
      * This function is called once each time the robot enters autonomous mode.
      */
@@ -61,16 +56,12 @@ public class RobotTemplate extends SimpleRobot {
     SpeedController buren2 = new Jaguar(6);
     Relay feeder1 = new Relay(2), feeder2 = new Relay(3);
     Relay electroMagnet = new Relay(1);
-    Joystick js1 = new Joystick(1), js2 = new Joystick(2), js3 = new Joystick(3);
     
     DigitalInput limitSwitch = new DigitalInput(1);
 
-    //NetworkTable server = NetworkTable.getTable("SmartDashboard");
-    //js 3 ax 5  is x on the knob and 6 is Y on the knob
-    //The limit switch is inverted
-    boolean button3State = false, button10State = false;
+    boolean electroMagnetOnButtonState = false;
 
-    int driveType = MecanumSplit;
+    JoystickLayout joystickLayout = new SplitMechanum(new Joystick(1), new Joystick(2), new Joystick(3));
     
     boolean feederOn = false;
 
@@ -94,14 +85,14 @@ public class RobotTemplate extends SimpleRobot {
         while (isOperatorControl() && isEnabled()) {
             SmartDashboard.putBoolean("Limit Switch Status", !limitSwitch.get());
 
-            if (js3.getRawButton(3)) {
+            if (joystickLayout.autoWinchDown()) {
                 winchingStartTime = System.currentTimeMillis();
                 isWinching = true;
                 autoWinchDirection = true;
                 electroMagnet.set(Relay.Value.kForward);
                 winchForward();
             }
-            if (js3.getRawButton(4)) {
+            if (joystickLayout.autoWinchUp()) {
                 winchingStartTime = System.currentTimeMillis();
                 isWinching = true;
                 autoWinchDirection = false;
@@ -116,8 +107,8 @@ public class RobotTemplate extends SimpleRobot {
                     winchStop();
                 }
             }
-            if (js3.getRawAxis(6) != 0) {
-                if (js3.getRawAxis(6) == -1) {
+            if (joystickLayout.manualWinchDown() || joystickLayout.manualWinchUp()) {
+                if (joystickLayout.manualWinchDown()) {
                     winchForward();
                 } else {
                     winchReverse();
@@ -135,40 +126,29 @@ public class RobotTemplate extends SimpleRobot {
                             - winchingTimeDown;  //Minos the time it should winch down = the winch will stop in winchLimitSwitchOverload.
                 }
             }
-            if (js3.getRawButton(8)) {
+            if (joystickLayout.winchOff()) {
                 winchingStartTime = -1;
                 isWinching = false;
                 winchStop();
             }
 
-            if (!js3.getRawButton(2)) {
-                button3State = false;
+            if (!joystickLayout.electroMagnetOn()) {
+                electroMagnetOnButtonState = false;
             }
-            if (js3.getRawButton(2) == true && button3State == false) {
-                button3State = true;
+            if (joystickLayout.electroMagnetOn() == true && electroMagnetOnButtonState == false) {
+                electroMagnetOnButtonState = true;
                 electroMagnet.set(Relay.Value.kForward);
             }
 
-            if (js3.getTrigger()) {
+            if (joystickLayout.electroMagnetReset()) {
                 electroMagnet.set(Relay.Value.kOff);
             }
-            if (js2.getRawButton(10) != button10State) {
-                if (js2.getRawButton(10)) {
-                    if (!feederOn) {
-                        feederOn = true;
-                    } else {
-                        feederOn = false;
-                    }
-                    button10State = true;
-                } else {
-                    button10State = false;
-                }
-            }
-            if (js3.getRawButton(11)) {
+            
+            if (joystickLayout.overrideFeederReverse()) {
                 feeder1.set(Relay.Value.kReverse);
                 feeder2.set(Relay.Value.kReverse);
             } else {
-                if (js3.getRawAxis(4) < .5) {
+                if (joystickLayout.setFeederOn()) {
 
                     feeder1.set(Relay.Value.kForward);
                     feeder2.set(Relay.Value.kForward);
@@ -179,15 +159,7 @@ public class RobotTemplate extends SimpleRobot {
                 }
             }
             
-            if (driveType == MecanumSplit) {
-            drive.mecanumDrive_Cartesian(-js2.getY(), -js1.getX(), js2.getX() / 2, 0);
-            } else if (driveType == Mecanum) {
-                
-            drive.mecanumDrive_Cartesian(-js2.getY(), -js2.getX(), js1.getX() / 2, 0);
-            } else if (driveType == AllInOne) {
-                
-            drive.mecanumDrive_Cartesian(-js3.getY(), -js3.getX(), js3.getTwist()/ 2, 0);
-            }
+            drive.mecanumDrive_Cartesian(joystickLayout.driveForward(), joystickLayout.driveLeft(), joystickLayout.driveRotation(), 0);
 
         }
     }

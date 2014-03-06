@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.Joystick;
 /*
      Joystick spec for all in one.
      Driving: js3 Y for forward and backward, js3 X for turn left and right, and js3 TWIST for rotation
-     Winching: js1 button 10 for manual winching down and js1 button 11 for manual winching up and js2 button 10 is auto winch down and js2 button 11 is autowinch down.
+     Winching: js1 button 10 for manual winching down and js1 button 11 for manual winching up and js2 button 10 is auto winch down and js2 button 11 is autowinch down.  Finally, js1 button 7 stops the winch.
      Feeding: js1 5 overrides that and dose reverse and js1 throttle turns the feeder on and off as well.
      Shooting: js2 button 5 turns it on and js2 trigger resets it
 */
@@ -63,16 +63,24 @@ public class AllInOne implements JoystickLayout {
         return js2.getTrigger();
     }
 
+    
+    //-js3.getY(), -js3.getX(), js3.getTwist()/ 2
     public double driveForward() {
-        return js3.getY();
+        return -js3.getY();
     }
 
     public double driveLeft() {
-        return js3.getX();
+        return -js3.getX();
     }
 
     public double driveRotation() {
-        return js3.getTwist();
+        return js3.getTwist() / 2;
     }
+
+    public boolean winchOff() {
+        return js1.getRawButton(7);
+    }
+    
+    
     
 }

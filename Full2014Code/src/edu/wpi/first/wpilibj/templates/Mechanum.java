@@ -20,16 +20,18 @@ public class Mechanum extends SplitMechanum {
         super(js1, js2, js3);
     }
 
+    
+    //-js2.getY(), -js2.getX(), js1.getX() / 2, 0
     public double driveForward() {
-        return js1.getY();
+        return -js2.getY();
     }
 
     public double driveLeft() {
-        return js1.getX();
+        return -js2.getX();
     }
 
     public double driveRotation() {
-        return js2.getX();
+        return js1.getX() / 2;
     }
 
     

@@ -19,7 +19,7 @@ The drive is split so that turning and forward/backward are on JS1 and sideways 
 /*
      Joystick spec for spit mechanum.
      Driving: js1 Y for forward and backward, js1 X for turn and js2 X for sideways
-     Winching: js3 up and down on knob   and js3 button 4 is auto winch up and js3 button 3 is autowinch down.
+     Winching: js3 up and down on knob   and js3 button 4 is auto winch up and js3 button 3 is autowinch down.  Finally, js3 button 8 is winch stop.
      Feeding: Toggle js2 10 for on and off and js3 11 overrides that and dose reverse and js3 throttle turns the feeder on and off as well.
      Shooting: js3 button 2 turns it on and js3 trigger resets it
 */
@@ -73,16 +73,25 @@ public class SplitMechanum implements JoystickLayout {
        
     }
 
+    
+    //-js2.getY(), -js1.getX(), js2.getX() / 2
     public double driveForward() {
-        return js1.getY();
+        return -js2.getY();
     }
 
     public double driveLeft() {
-        return js2.getY();
+        return -js1.getX();
     }
 
     public double driveRotation() {
-        return js1.getX();
+        return js2.getX() / 2;
+    }
+
+    
+    
+    
+    public boolean winchOff() {
+        return js3.getRawButton(8);
     }
     
 }

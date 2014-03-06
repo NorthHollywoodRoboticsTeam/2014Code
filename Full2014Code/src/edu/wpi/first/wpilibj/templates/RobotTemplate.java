@@ -34,6 +34,62 @@ public class RobotTemplate extends SimpleRobot {
     SmartDashboard network = new SmartDashboard();
     public void autonomous() {
         drive.mecanumDrive_Cartesian(.5, 0, 0, 0);
+        (new Thread(new Runnable() {
+
+            public void run() {
+                
+                //Var initialization                
+                long winchingStartTime = -1;
+                boolean isWinching = false;
+                
+                
+
+                //true = winching down false = winching up
+                boolean autoWinchDirection = false;
+                
+                //winch down
+                winchingStartTime = System.currentTimeMillis();
+                isWinching = true;
+                autoWinchDirection = true;
+                electroMagnet.set(Relay.Value.kForward);
+                winchForward();
+                
+                
+                
+                //check conditions
+                while (isAutonomous() || isEnabled()) {
+                    if (winchingStartTime != -1 && isWinching) {
+                        if (((autoWinchDirection == false) && System.currentTimeMillis() - winchingStartTime > winchingTimeUp)
+                                || ((autoWinchDirection == true) && System.currentTimeMillis() - winchingStartTime > winchingTimeDown)) {
+                            if (autoWinchDirection == true) {
+                                winchingStartTime = System.currentTimeMillis();
+                                isWinching = true;
+                                autoWinchDirection = false;
+                                winchReverse();
+                            } else {
+                                winchingStartTime = -1;
+                                isWinching = false;
+                                autoWinchDirection = true;
+                                winchStop();
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!limitSwitch.get() && isWinching) {
+                        if (autoWinchDirection == true) {
+                            winchingStartTime
+                                    = (System.currentTimeMillis() + winchLimitSwitchOverload) //The system time we want the winch to stop at.
+                                    - winchingTimeDown;  //Minos the time it should winch down = the winch will stop in winchLimitSwitchOverload.
+                        }
+                    }
+                }
+                
+                //Shoot!!!!!
+                electroMagnet.set(Relay.Value.kOff);
+
+            }
+        })).start();
         Timer.delay(1);
         drive.mecanumDrive_Cartesian(0, 0, 0, 0);
         
@@ -66,7 +122,7 @@ public class RobotTemplate extends SimpleRobot {
     public final long winchingTimeUp = (long) (3.5 * 1000);
     public final long winchingTimeDown = (long) (3.56 * 1000);
 
-    private final long winchLimitSwitchOverload = (long) (8);
+    private final long winchLimitSwitchOverload = (long) (4);
     
     /**
      *

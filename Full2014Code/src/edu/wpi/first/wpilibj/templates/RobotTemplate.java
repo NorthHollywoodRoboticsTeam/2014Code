@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -30,15 +31,10 @@ public class RobotTemplate extends SimpleRobot {
      * This function is called once each time the robot enters autonomous mode.
      */
     public void autonomous() {
-        /*try {
-         if (((Double)(server.getValue("BLOB_COUNT"))).intValue() >= 2) {
-         System.out.println("shoot NOW");
-         }else{ 
-         System.out.println("Don't shoot");
-         }
-         } catch (Exception ex) {
-                
-         }*/
+        drive.mecanumDrive_Cartesian(.5, 0, 0, 0);
+        Timer.delay(winchingTimeUp);
+        drive.mecanumDrive_Cartesian(0, 0, 0, 0);
+        
     }
 
     

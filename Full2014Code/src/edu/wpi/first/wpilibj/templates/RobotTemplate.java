@@ -33,10 +33,12 @@ public class RobotTemplate extends SimpleRobot {
      * This function is called once each time the robot enters autonomous mode.
      */
     
-    NetworkTable server = NetworkTable.getTable("SmartDashboard");
+    //NetworkTable server = NetworkTable.getTable("SmartDashboard");
     public void autonomous() {
+        System.out.println("driving positive");
+        Timer.delay(7);
         drive.mecanumDrive_Cartesian(.5, 0, 0, 0);
-        (new Thread(new Runnable() {
+        /*(new Thread(new Runnable() {
 
             public void run() {
                 
@@ -96,26 +98,13 @@ public class RobotTemplate extends SimpleRobot {
                 electroMagnet.set(Relay.Value.kOff);
 
             }
-        })).start();
+        })).start();*/
         
         
-        //While that is happening, count the blobs and when that is done and the drive forward is done
-        boolean driveLeft = true;
-        System.out.println("blob count");
-        if (((Double)(server.getValue("BLOB_COUNT"))).intValue() > 1) {
-            
-            System.out.println("IDed a blob in front of robot, driving right to go to that goal");
-            driveLeft = false;
-        }
+        
         Timer.delay(1.5);
         drive.mecanumDrive_Cartesian(0, 0, 0, 0);
-        if (driveLeft) {
-            System.out.println("chose to drive left");
-            drive.mecanumDrive_Cartesian(0, .5, 0, 0);
-        } else {
-            System.out.println("chose to drive right because drive left is false");
-            drive.mecanumDrive_Cartesian(0, -.5, 0, 0);
-        }
+        
         
         //No need to shoot here, the shot will be done on the winch thread.
         
@@ -143,7 +132,7 @@ public class RobotTemplate extends SimpleRobot {
 
     boolean electroMagnetOnButtonState = false;
 
-    JoystickLayout joystickLayout = new AllInOne(new Joystick(1), new Joystick(2), new Joystick(3));
+    JoystickLayout joystickLayout = new SplitMechanum(new Joystick(1), new Joystick(2), new Joystick(3));
     
     boolean feederOn = false;
 
@@ -153,44 +142,29 @@ public class RobotTemplate extends SimpleRobot {
     public final long winchingTimeDown = (long) (3.56 * 1000);
 
     private final long winchLimitSwitchOverload = (long) (10);
+
     //the throttle is axis 3!!!!!!!!!!!
     /**
      *
      * This function is called once each time the robot enters operator control.
      */
+    
+    
+    
     public void operatorControl() {
+       
+        
         long winchingStartTime = -1;
 
         boolean isWinching = false;
 
         //true = winching down false = winching up
         boolean autoWinchDirection = false;
-        System.out.println("starting en.");
+        System.out.println("starting en v2.");
         while (isOperatorControl() && isEnabled()) {
             SmartDashboard.putBoolean("Limit Switch Status2:", limitSwitch.get());
-            System.out.println("loop");
-            /*if (js3.getRawButton(7) != button7State) {
-                System.out.println("button 7 state");
-               if (!button7State) {
-                    button7State = true;
-                    System.out.println("switching driving layout.");
-                    if (joystickLayout instanceof AllInOne) {
-                        System.out.println("going to SplitAllInOne");
-                        JoystickLayout joystickLayout = new SplitAllInOne(new Joystick(1), new Joystick(2), new Joystick(3));
-                    } else if (joystickLayout instanceof SplitAllInOne) {
-                        System.out.println("going to Mechanujm");
-    JoystickLayout joystickLayout = new Mechanum(new Joystick(1), new Joystick(2), new Joystick(3));
-                    } else if (joystickLayout instanceof Mechanum) {
-                       System.out.println("going to Split mechanum");
-    JoystickLayout joystickLayout = new SplitMechanum(new Joystick(1), new Joystick(2), new Joystick(3));
-                    } else if (joystickLayout instanceof SplitMechanum) {
-                        System.out.println("going to AllInOne");
-    JoystickLayout joystickLayout = new AllInOne(new Joystick(1), new Joystick(2), new Joystick(3));
-                    }
-                } else {
-                    button7State = false;
-                }
-            }*/
+            System.out.println("js3 forward: " + joystickLayout.driveForward());
+            
             
             if (joystickLayout.autoWinchDown()) {
                 System.out.println("starting an auto winch down!!");
@@ -268,6 +242,8 @@ public class RobotTemplate extends SimpleRobot {
                 }
             }
             
+            System.out.println("twist: " +joystickLayout.driveRotation());
+            System.out.println("left/right: " + joystickLayout.driveLeft());
             drive.mecanumDrive_Cartesian(joystickLayout.driveForward(), joystickLayout.driveLeft(), joystickLayout.driveRotation(), 0);
 
         }

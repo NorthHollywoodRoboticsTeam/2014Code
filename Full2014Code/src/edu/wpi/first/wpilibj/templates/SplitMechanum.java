@@ -74,13 +74,33 @@ public class SplitMechanum implements JoystickLayout {
     }
 
     
+    public boolean winchOff() {
+        return js3.getRawButton(5) || js3.getRawButton(6);
+    }
+    
+    
+    
+    
+    
     //-js2.getY(), -js1.getX(), js2.getX() / 2
     public double driveForward() {
-        return -js2.getY();
+        if (js2.getThrottle() > .5) {
+            System.out.println("Driving mode one!!!");
+            return -js2.getY();
+        } else {
+            System.out.println("dirving mode two");
+            return js2.getY();
+        }
+        
     }
 
     public double driveLeft() {
-        return -js1.getX();
+        if (js2.getThrottle() > .5) {
+            return -js1.getX();
+        } else {
+            return js1.getX();
+        }
+        
     }
 
     public double driveRotation() {
@@ -90,8 +110,5 @@ public class SplitMechanum implements JoystickLayout {
     
     
     
-    public boolean winchOff() {
-        return js3.getRawButton(8);
-    }
     
 }

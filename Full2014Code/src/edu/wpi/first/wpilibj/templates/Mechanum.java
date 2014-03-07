@@ -23,11 +23,20 @@ public class Mechanum extends SplitMechanum {
     
     //-js2.getY(), -js2.getX(), js1.getX() / 2, 0
     public double driveForward() {
-        return -js2.getY();
+        if (js2.getThrottle() > .5) {
+            System.out.println("drive style one");
+            return -js2.getY();
+        } else {
+            return js2.getY();
+        }
     }
 
     public double driveLeft() {
-        return -js2.getX();
+        if (js2.getThrottle() > .5) {
+            return -js2.getX();
+        } else {
+            return js2.getX();
+        }
     }
 
     public double driveRotation() {

@@ -32,54 +32,68 @@ public class AllInOne implements JoystickLayout {
     
     
     public boolean manualWinchDown() {
-        return js1.getRawButton(10);
+        return js1.getRawButton(2);
     }
 
     public boolean manualWinchUp() {
-        return js1.getRawButton(11);
+        return js1.getRawButton(3);
     }
 
     public boolean autoWinchDown() {
-        return js2.getRawButton(10);
+        return js2.getRawButton(2);
     }
 
     public boolean autoWinchUp() {
-        return js2.getRawButton(11);
+        return js2.getRawButton(3);
     }
 
+    
+    public boolean winchOff() {
+        return js1.getRawButton(8) || js1.getRawButton(9) || js1.getRawButton(4) || js1.getRawButton(5);
+    }
+    
     public boolean setFeederOn() {
-        return js1.getThrottle() > .5;
+        return js2.getRawAxis(3)> .5;
     }
 
     public boolean overrideFeederReverse() {
-        return js1.getRawButton(5);
+        return js2.getRawButton(7);
     }
 
     public boolean electroMagnetOn() {
-        return js2.getRawButton(5);
+        System.out.println("e mag on thing");
+        return js1.getTrigger();
     }
 
     public boolean electroMagnetReset() {
-        return js2.getTrigger() || js1.getTrigger();
+        return js2.getTrigger();
     }
 
     
     //-js3.getY(), -js3.getX(), js3.getTwist()/ 2
     public double driveForward() {
-        return -js3.getY();
+        
+        if (js3.getRawAxis(4) > .5) {
+            return -js3.getY();
+        } else {
+            return js3.getY();
+        }
     }
 
     public double driveLeft() {
-        return -js3.getX();
+        if (js3.getRawAxis(4) > .5) {
+            return -js3.getX();
+        } else {
+            return js3.getX();
+        }
+        
     }
 
     public double driveRotation() {
         return js3.getTwist() / 2;
     }
 
-    public boolean winchOff() {
-        return js1.getRawButton(7);
-    }
+    
     
     
     

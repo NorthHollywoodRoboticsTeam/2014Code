@@ -36,8 +36,23 @@ public class RobotTemplate extends SimpleRobot {
     //NetworkTable server = NetworkTable.getTable("SmartDashboard");
     public void autonomous() {
         System.out.println("driving positive");
-        Timer.delay(7);
-        drive.mecanumDrive_Cartesian(.5, 0, 0, 0);
+        
+        mecDrive(.5, 0, 0);
+        Timer.delay(3.2);
+        mecDrive(0, 0, 0);
+       /*drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
+        drive.setInvertedMotor(RobotDrive.MotorType.kRearLeft, true);
+       drive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
+       drive.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, true);
+        
+        //Timer.delay(7);
+        
+        drive.setSafetyEnabled(false);
+        
+            drive.arcadeDrive(-.5,0);
+        
+        Timer.delay(6);
+        drive.arcadeDrive(0,0);*/
         /*(new Thread(new Runnable() {
 
             public void run() {
@@ -102,9 +117,6 @@ public class RobotTemplate extends SimpleRobot {
         
         
         
-        Timer.delay(1.5);
-        drive.mecanumDrive_Cartesian(0, 0, 0, 0);
-        
         
         //No need to shoot here, the shot will be done on the winch thread.
         
@@ -119,7 +131,12 @@ public class RobotTemplate extends SimpleRobot {
      Winch: PWM Port 5 and 6
      Drive: PWM ports 1-4 AS LABELED ON MOTORS and with the Jags the right way.
      */
-    RobotDrive drive = new RobotDrive(new Jaguar(2), new Jaguar(1), new InvertedSpeedController(new Jaguar(3)), new InvertedSpeedController(new Jaguar(4)));
+    //FL RL  FR RR
+    //RobotDrive drive = new RobotDrive(new Jaguar(4), new Jaguar(3), new Jaguar(1), new Jaguar(2));
+    
+    
+    Jaguar frontLeft = new Jaguar(4), rearLeft = new Jaguar(3), frontRight = new Jaguar(1), rearRight = new Jaguar(2);
+    
     
     Joystick js3 = new Joystick(3), js1 = new Joystick(1);
     
@@ -132,7 +149,7 @@ public class RobotTemplate extends SimpleRobot {
 
     boolean electroMagnetOnButtonState = false;
 
-    JoystickLayout joystickLayout = new SplitMechanum(new Joystick(1), new Joystick(2), new Joystick(3));
+    JoystickLayout joystickLayout = new AllInOne(new Joystick(1), new Joystick(2), new Joystick(3));
     
     boolean feederOn = false;
 
@@ -150,10 +167,48 @@ public class RobotTemplate extends SimpleRobot {
      */
     
     
+    public double clamp(double val) {
+        if (val > 1) {
+            return 1;
+        } else if (val < -1) {
+            return -1;
+        } else {
+            return val;
+        }
+    }
+    public void mecDrive(double forward, double turnRight, double strafeRight) {
+        double FL = clamp(forward + turnRight + strafeRight);
+        double RL = clamp(forward + turnRight - strafeRight);
+        double FR = clamp(forward - turnRight - strafeRight);
+        double RR = clamp(forward - turnRight + strafeRight);
+        frontLeft.set(FL);
+        rearLeft.set(RL);
+        frontRight.set(-FR);
+        rearRight.set(-RR);
+        
+        
+    }
     
     public void operatorControl() {
-       
+        //1, 3
+        /*
+            FL    FR
         
+            RL    RR
+        
+            forward ->   +FL +RL +FR +RR
+            turnright -> +FL +RL -FR -RR
+            strafe ->    +FL -RL -FR +RR
+        
+            FL = (fwd + turn + strafe);
+            RL = (fwd + turn - strafe);
+            FR = (fwd - turn - strafe);
+            RR = (fwd - turn + strafe);
+        */
+       /*drive.setInvertedMotor(RobotDrive.MotorType.kRearRight, true);
+        drive.setInvertedMotor(RobotDrive.MotorType.kRearLeft, true);
+       drive.setInvertedMotor(RobotDrive.MotorType.kFrontRight, true);
+       drive.setInvertedMotor(RobotDrive.MotorType.kFrontLeft, true);*/
         long winchingStartTime = -1;
 
         boolean isWinching = false;
@@ -162,12 +217,9 @@ public class RobotTemplate extends SimpleRobot {
         boolean autoWinchDirection = false;
         System.out.println("starting en v2.");
         while (isOperatorControl() && isEnabled()) {
-            SmartDashboard.putBoolean("Limit Switch Status2:", limitSwitch.get());
-            System.out.println("js3 forward: " + joystickLayout.driveForward());
-            
+            //SmartDashboard.putBoolean("Limit Switch Status2:", limitSwitch.get());
             
             if (joystickLayout.autoWinchDown()) {
-                System.out.println("starting an auto winch down!!");
                 winchingStartTime = System.currentTimeMillis();
                 isWinching = true;
                 autoWinchDirection = true;
@@ -175,7 +227,6 @@ public class RobotTemplate extends SimpleRobot {
                 winchForward();
             }
             if (joystickLayout.autoWinchUp()) {
-                System.out.println("starting an auto winch up!");
                 winchingStartTime = System.currentTimeMillis();
                 isWinching = true;
                 autoWinchDirection = false;
@@ -241,11 +292,11 @@ public class RobotTemplate extends SimpleRobot {
                     feeder2.set(Relay.Value.kOff);
                 }
             }
-            
-            System.out.println("twist: " +joystickLayout.driveRotation());
-            System.out.println("left/right: " + joystickLayout.driveLeft());
-            drive.mecanumDrive_Cartesian(joystickLayout.driveForward(), joystickLayout.driveLeft(), joystickLayout.driveRotation(), 0);
-
+             
+            //drive.mecanumDrive_Cartesian(joystickLayout.driveForward(), joystickLayout.driveLeft(), joystickLayout.driveRotation(), 0);
+            //drive.arcadeDrive(js3);
+            //drive.arcadeDrive(js3.getY(),js3.getX());
+            mecDrive(joystickLayout.driveForward(), joystickLayout.driveRotation(), joystickLayout.driveLeft());
         }
     }
 

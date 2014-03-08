@@ -53,7 +53,7 @@ public class AllInOne implements JoystickLayout {
     }
     
     public boolean setFeederOn() {
-        return js2.getRawAxis(3)> .5;
+        return js2.getRawAxis(3) < .5;
     }
 
     public boolean overrideFeederReverse() {
@@ -61,7 +61,6 @@ public class AllInOne implements JoystickLayout {
     }
 
     public boolean electroMagnetOn() {
-        System.out.println("e mag on thing");
         return js1.getTrigger();
     }
 
@@ -73,7 +72,7 @@ public class AllInOne implements JoystickLayout {
     //-js3.getY(), -js3.getX(), js3.getTwist()/ 2
     public double driveForward() {
         
-        if (js3.getRawAxis(4) > .5) {
+        if (js3.getRawAxis(4) < .5) {
             return -js3.getY();
         } else {
             return js3.getY();
@@ -81,7 +80,7 @@ public class AllInOne implements JoystickLayout {
     }
 
     public double driveLeft() {
-        if (js3.getRawAxis(4) > .5) {
+        if (js3.getRawAxis(4) < .5) {
             return -js3.getX();
         } else {
             return js3.getX();
@@ -90,7 +89,7 @@ public class AllInOne implements JoystickLayout {
     }
 
     public double driveRotation() {
-        return js3.getTwist() / 2;
+        return js3.getTwist() / 3.5;
     }
 
     

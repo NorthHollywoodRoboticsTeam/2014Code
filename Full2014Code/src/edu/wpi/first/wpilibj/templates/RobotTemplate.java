@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.SpeedController;
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
@@ -113,14 +114,9 @@ public class RobotTemplate extends SimpleRobot {
                 electroMagnet.set(Relay.Value.kOff);
 
             }
-        })).start();*/
-        
-        
-        
-        
+        })).start();*/ 
         //No need to shoot here, the shot will be done on the winch thread.
-        
-        
+
     }
 
     
@@ -135,7 +131,7 @@ public class RobotTemplate extends SimpleRobot {
     //RobotDrive drive = new RobotDrive(new Jaguar(4), new Jaguar(3), new Jaguar(1), new Jaguar(2));
     
     
-    Jaguar frontLeft = new Jaguar(4), rearLeft = new Jaguar(3), frontRight = new Jaguar(1), rearRight = new Jaguar(2);
+    Talon frontLeft = new Talon(4), rearLeft = new Talon(3), frontRight = new Talon(1), rearRight = new Talon(2);
     
     
     Joystick js3 = new Joystick(3), js1 = new Joystick(1);
@@ -217,7 +213,7 @@ public class RobotTemplate extends SimpleRobot {
         boolean autoWinchDirection = false;
         System.out.println("starting en v2.");
         while (isOperatorControl() && isEnabled()) {
-            //SmartDashboard.putBoolean("Limit Switch Status2:", limitSwitch.get());
+            SmartDashboard.putBoolean("Limit Switch101:", limitSwitch.get());
             
             if (joystickLayout.autoWinchDown()) {
                 winchingStartTime = System.currentTimeMillis();
@@ -311,7 +307,6 @@ public class RobotTemplate extends SimpleRobot {
     }
 
     private void winchReverse() {
-
         buren1.set(-1);
         buren2.set(1 * .985);
     }

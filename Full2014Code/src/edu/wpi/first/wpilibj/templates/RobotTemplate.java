@@ -137,7 +137,7 @@ public class RobotTemplate extends SimpleRobot {
     Joystick js3 = new Joystick(3), js1 = new Joystick(1);
     
     SpeedController buren1 = new Victor(5);
-    SpeedController buren2 = new Jaguar(6);
+    SpeedController buren2 = new Victor(6);
     Relay feeder1 = new Relay(2), feeder2 = new Relay(3);
     Relay electroMagnet = new Relay(1);
     
@@ -154,7 +154,7 @@ public class RobotTemplate extends SimpleRobot {
     public final long winchingTimeUp = (long) (3.5 * 1000);
     public final long winchingTimeDown = (long) (3.56 * 1000);
 
-    private final long winchLimitSwitchOverload = (long) (10);
+    private final long winchLimitSwitchOverload = (long) (0);
 
     //the throttle is axis 3!!!!!!!!!!!
     /**
